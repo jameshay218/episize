@@ -6,7 +6,7 @@ Authors@R: person("James", "Hay", email = "james.hay13@imperial.ac.uk", role = c
 Description: This package is used to calculate the final attack rates of an epidemic given a population stratified by age and immunity classes. It allows the user to specify age-specific mixing rates, population sizes and biological transmission rates.
 Imports: 
 	pracma, 
-	nleqslv, 
+	nleqslv
 Suggests: 
 	deSolve
 Depends: 
