@@ -1,0 +1,16 @@
+Package: episize
+Title: Epidemic Final Size Calculator
+Version: 1.0.0
+Date: 9-12-2015
+Authors@R: person("James", "Hay", email = "james.hay13@imperial.ac.uk", role = c("aut", "cre"))
+Description: This package is used to calculate the final attack rates of an epidemic given a population stratified by age and immunity classes. It allows the user to specify age-specific mixing rates, population sizes and biological transmission rates.
+Imports: 
+	pracma, 
+	nleqslv, 
+Suggests: 
+	deSolve
+Depends: 
+	R (>= 3.0.0)
+License: GNU General Public License as published by the Free Sotware Foundation, either version 3 of the License, or any later version. Distributed WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. A copy can be found at <http://www.gnu.org/licenses/>.
+LazyData: true
+RoxygenNote: 4.1.1.9001
