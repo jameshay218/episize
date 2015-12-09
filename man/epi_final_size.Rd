@@ -9,9 +9,9 @@ epi_final_size(C1, R0, Ns, alphas)
 \arguments{
 \item{C1}{the non-normalised contact matrix of contact frequencies between each age class}
 
-\item{R0}{the disease specific R0 ie. beta/gamma. Note that another parameter will mediate the contact rate}
+\item{R0}{the disease specific R0 ie. beta and gamma. Note that another parameter will mediate the contact rate}
 
-\item{Ns}{the matrix of population sizes for each age/titre combination (non-normalised) (ie. rows = ages, cols = immunity classes)}
+\item{Ns}{the matrix of population sizes for each age or titre combination (non-normalised) (ie. rows = ages, cols = immunity classes)}
 
 \item{alphas}{a vector of values between 0 and 1 matching the number of immunity classes}
 }

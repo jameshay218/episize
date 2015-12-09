@@ -19,8 +19,7 @@ simeq <- function(A,R0,G,P,Z){
 #' @param C1 the non-normalised contact matrix of contact frequencies between each age class
 #' @param Ns the matrix of population sizes for each age/titre combination (non-normalised)
 #' @return a matrix of the normalised contact rates between all age/titre class combinations.
-#' @export
-#' #' @examples
+#' @examples
 #' C <- matrix(c(2,.5,.4,0.3),ncol=2,nrow=2)
 #' N11 <- 1000
 #' N12 <- 1000
@@ -28,6 +27,7 @@ simeq <- function(A,R0,G,P,Z){
 #' N22 <- 750
 #' N <- matrix(c(N11,N21,N12,N22),ncol=2,nrow=2)
 #' C1 <- setup_C(C,N)
+#' @export
 setup_C <- function(C1, Ns){
     Ntiter <- ncol(Ns)
     Nage <- nrow(Ns)
@@ -44,64 +44,34 @@ setup_C <- function(C1, Ns){
     return(C)
 }
 
+
 #' Epidemic Final Size Calculation
 #' 
 #' Calculates the final size of an epidemic given 2-dimensional population categorisation eg. age and immunity class. Note that this uses the final size calculation similar to that in Kucharski et al. 2014 PLoS Pathogens.
 #' @param C1 the non-normalised contact matrix of contact frequencies between each age class
-#' @param R0 the disease specific R0 ie. beta/gamma. Note that another parameter will mediate the contact rate
-#' @param Ns the matrix of population sizes for each age/titre combination (non-normalised) (ie. rows = ages, cols = immunity classes)
+#' @param R0 the disease specific R0 ie. beta and gamma. Note that another parameter will mediate the contact rate
+#' @param Ns the matrix of population sizes for each age or titre combination (non-normalised) (ie. rows = ages, cols = immunity classes)
 #' @param alphas a vector of values between 0 and 1 matching the number of immunity classes
 #' @return an NxM matrix of attack rates (ie. proportion of susceptibles becoming infected)
 #' @seealso \code{\link{epi_ode_size}}
 #' @export
 epi_final_size <- function(C1, R0, Ns, alphas){
-    Ntiter <- ncol(Ns)
-    Nage <- nrow(Ns)
-
-    C <- setup_C(C1, Ns)
-    
-    propns_3 <- as.numeric(t(Ns/sum(Ns))) #' Generate a matrix of Pai
-    propns_3 <- repmat(propns_3,Nage*Ntiter,1)
-
-    A0 <- rand(Ntiter*Nage,1) #' Starting seeds for nleqslv
-
-    rep_alphas <- t(repmat(alphas,1,Nage)) #' Format alphas like A0, as each group will have its incidence reduced
-
-    #' Run optimiser to find attack rates for age/titer groups
-    final <- array(nleqslv(A0,simeq,G=C,Z=rep_alphas,P=propns_3,R0=R0,control=list(xtol=1e-15,ftol=1e-15,btol=1e-15,maxit=1000))$x)
-
-    #' Format as matrix
-    final <- matrix(final,ncol=Ntiter,nrow=Nage,byrow=T)
-
-    return(final)
+  Ntiter <- ncol(Ns)
+  Nage <- nrow(Ns)
+  C <- setup_C(C1, Ns)
+  propns_3 <- as.numeric(t(Ns/sum(Ns))) # Generate a matrix of Pai
+  propns_3 <- repmat(propns_3,Nage*Ntiter,1)
+  A0 <- rand(Ntiter*Nage,1) # Starting seeds for nleqslv
+  rep_alphas <- t(repmat(alphas,1,Nage)) # Format alphas like A0, as each group will have its incidence reduced
+  # Run optimiser to find attack rates for age/titer groups
+  final <- array(nleqslv(A0,simeq,G=C,Z=rep_alphas,P=propns_3,R0=R0,control=list(xtol=1e-15,ftol=1e-15,btol=1e-15,maxit=1000))$x)
+  # Format as matrix
+  final <- matrix(final,ncol=Ntiter,nrow=Nage,byrow=T)
+  return(final)
 }
 
-#' General SIR ode
-#' 
-#' Generic SIR ode function (for use in deSolve), taking an arbritrary number of populations, ages and immunity classes
-#' @param t current time, as for ode function
-#' @param vector of compartment sizes eg. S11, I11, R11, S12, I12, R12 etc...
-#' @param pars vector of R0, 1/gamma and alphas (vector of immunity conferred for each titre class)
-#' @param C the normalised contact matrix of contact frequencies between each age and titre classes
-#' @param Nage number of age classes
-#' @param Ntiter number of titre classes
-#' @return a list of compartment size changes, as required by deSolve
-#' @export
-general_sir <- function(t,y, pars, C, Nage,Ntiter){
-  R0 <- pars[1]
-  Tg <- pars[length(pars)]
-  alphas <- pars[2:(length(pars)-1)]
-    
-  sir <- matrix(y,ncol=Nage*Ntiter,nrow=3)
 
-  dS <- -((R0/Tg)*alphas*sir[1,]*(sir[2,]%*%t(C))/sum(sir))
-  dR <- sir[2,]/Tg
-  dI <- -dS - dR
-    
-  tmp <- as.vector(rbind(dS,dI,dR))
-  
-  return(list(c(tmp)))
-}
+
 
 #' Epidemic Final Size Calculation ODE
 #' 
@@ -143,6 +113,33 @@ epi_ode_size <- function(C1, R0, Tg, Ns, alphas){
     A <- matrix(A,nrow=Nage,ncol=Ntiter,byrow=T)
     
     return(A)
+}
+
+#' General SIR ode
+#' 
+#' Generic SIR ode function (for use in deSolve), taking an arbritrary number of populations, ages and immunity classes
+#' @param t current time, as for ode function
+#' @param vector of compartment sizes eg. S11, I11, R11, S12, I12, R12 etc...
+#' @param pars vector of R0, 1/gamma and alphas (vector of immunity conferred for each titre class)
+#' @param C the normalised contact matrix of contact frequencies between each age and titre classes
+#' @param Nage number of age classes
+#' @param Ntiter number of titre classes
+#' @return a list of compartment size changes, as required by deSolve
+#' @export
+general_sir <- function(t,y, pars, C, Nage,Ntiter){
+  R0 <- pars[1]
+  Tg <- pars[length(pars)]
+  alphas <- pars[2:(length(pars)-1)]
+    
+  sir <- matrix(y,ncol=Nage*Ntiter,nrow=3)
+
+  dS <- -((R0/Tg)*alphas*sir[1,]*(sir[2,]%*%t(C))/sum(sir))
+  dR <- sir[2,]/Tg
+  dI <- -dS - dR
+    
+  tmp <- as.vector(rbind(dS,dI,dR))
+  
+  return(list(c(tmp)))
 }
 
 #' 3 age class SIR ode

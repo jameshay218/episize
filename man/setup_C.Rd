@@ -17,4 +17,13 @@ a matrix of the normalised contact rates between all age/titre class combination
 \description{
 Given a matrix of contact frequency between age classes and a matrix of true population sizes, gives the scaled, normalised contact rate matrix for each age/titre class.
 }
+\examples{
+C <- matrix(c(2,.5,.4,0.3),ncol=2,nrow=2)
+N11 <- 1000
+N12 <- 1000
+N21 <- 2000
+N22 <- 750
+N <- matrix(c(N11,N21,N12,N22),ncol=2,nrow=2)
+C1 <- setup_C(C,N)
+}
 
